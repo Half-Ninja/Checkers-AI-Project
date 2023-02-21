@@ -1,2 +1,5 @@
 # Checkers-AI-Project
-Checkers porject for college
+Checkers project for college
+coded in java
+
+by Tom Bruder & [[insert name]]
