@@ -2,4 +2,4 @@
 Checkers project for college
 coded in java
 
-by Tom Bruder & [[insert name]]
+by Tom Bruder & Eric Bu
