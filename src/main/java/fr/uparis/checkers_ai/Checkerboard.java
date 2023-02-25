@@ -1,5 +1,7 @@
 package fr.uparis.checkers_ai;
 
+import java.util.ArrayList;
+
 /**
  * base checkers classes containing the base functions of the class
  */
@@ -48,7 +50,19 @@ public class Checkerboard {
      * @return true if the game is finished (one side has no more pieces left)
      */
     public boolean isFinished() {
-        return false;
+        boolean foundWhite = false, foundBlack = false;
+        for(int[] line : board)
+            for(int square : line){
+                if(square == 1 && !foundWhite) {
+                    if (foundBlack) return false;
+                    foundWhite = true;
+                }
+                if(square == -1 && !foundBlack){
+                    if(foundWhite) return false;
+                    foundBlack = true;
+                }
+            }
+        return true;
     }
 
     /**
@@ -56,14 +70,27 @@ public class Checkerboard {
      * @return 0 is the game is not finished, >0 if white won, <0 if black won
      */
     public int wonBy() {
-        return 0;
+        boolean foundWhite = false, foundBlack = false;
+        for(int[] line : board)
+            for(int square : line){
+                if(square == 1 && !foundWhite) {
+                    if (foundBlack) return 0;
+                    foundWhite = true;
+                }
+                if(square == -1 && !foundBlack){
+                    if(foundWhite) return 0;
+                    foundBlack = true;
+                }
+            }
+        return foundBlack?-1:1;
     }
 
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();
-        for(int[] line : board){
-            for(int place : line)
+        for(int i = 0; i < 8; i++){
+            res.append(i);
+            for(int place : board[i])
                 switch (place) {
                     case 0 -> res.append(' ');
                     case 1 -> res.append('w');
@@ -74,7 +101,142 @@ public class Checkerboard {
                 }
             res.append('\n');
         }
-        return res.toString();
+        return res.append(" 01234567").toString();
+    }
+
+    /**
+     * check if the following singular move is possible, assuming a certain piece is in the start, accounts for captures
+     * @param fromX x coordinate of the start
+     * @param fromY y coordinate of the start
+     * @param toX x coordinate of the end
+     * @param toY y coordinate of the end
+     * @param piece the piece to assume is in position
+     * @param ignoreList the list of places to count as empty
+     * @return true if possible
+     */
+    public boolean canMoveAssumingPiece(int fromX, int fromY, int toX, int toY, int piece, ArrayList<Integer> ignoreList){
+        // if no piece or not a diagonal or the destination full return false
+        if (piece == 0 || Math.abs(fromX - toX) != Math.abs(fromY - toY) ||
+                (board[toX][toY] != 0 && ! ignoreList.contains((int)(Math.pow(2,toX)*Math.pow(3, toY))))) return false;
+
+        int yDirection = (fromY<toY?1:-1);
+
+        //if a pawn
+        if (Math.abs(piece) == 1){
+            // check if it is a simple move
+            // fromX-toX will equal -1 if the piece goes 1 line down (3-4 = -1) and 1 if it goes up,
+            // and since black pawns can only go down (-1) and white up (1) simply do the check thusly
+            if (fromX-toX == piece) return true;
+
+            // check if it is a valid capture
+            // fromX-toX == 2 * piece -- make sure the piece moves two ranks/columns
+            // board[toX - piece][toY - yDirection] * piece > 0 -- since -n * -n = n^2 and n*0 = 0,
+            // will only return a negative if one of the piece is negative(black) and the other positive (white)
+            //
+            // also checks if the piece is not ignored
+            if (fromX-toX == 2 * piece && board[toX - piece][toY - yDirection] * piece < 0
+                    && !ignoreList.contains((int)(Math.pow(2,toX-piece)*Math.pow(3, toY-yDirection)))) return true;
+        }
+
+        // if a queen
+        if (Math.abs(piece) == 2){
+            // if moving only one space
+            if (Math.abs(fromX - toX) == 1) return true;
+
+
+            int xDirection = (fromX<toX?1:-1);
+
+            // checks is the path is empty
+            int prevCaseValue = (int)(Math.pow(2, toX - xDirection) * Math.pow(3, toY - yDirection));
+            for(int i = 0; i < toX - fromX ; i++)
+                for(int j = fromY + yDirection; j != toY - yDirection; j += yDirection){
+                    if(board[i*xDirection][j*yDirection] != 0  // checks if the current piece is empty
+                            && !ignoreList.contains(prevCaseValue)) // OR ignored
+                        return false;
+                }
+
+            //checks is the case before the end is empty (path free) OR enemy (capture)
+            // board[toX - piece][toY - yDirection] * piece > 0 -- since -n * n = -n^2 and n*0 = 0,
+            // will only return a positive if both pieces is negative(black) and the other positive (white)
+            // therefore by reversing the result, we will get true if board[toX - piece][toY - yDirection]
+            // is either opposite to piece OR 0
+            return !(board[toX - xDirection][toY - yDirection] * piece > 0)
+                    || ignoreList.contains(prevCaseValue);
+        }
+        return false;
+    }
+
+    /**
+     * check if the following singular move is possible, assuming a certain piece is in the start, accounts for captures
+     * @param fromX x coordinate of the start
+     * @param fromY y coordinate of the start
+     * @param toX x coordinate of the end
+     * @param toY y coordinate of the end
+     * @param piece the piece to assume is in position
+     * @return true if possible
+     */
+    public boolean canMoveAssumingPiece(int fromX, int fromY, int toX, int toY, int piece){
+        return canMoveAssumingPiece(fromX, fromY, toX, toY, piece, new ArrayList<>());
+    }
+
+    /**
+     * check if the following singular move is a possible capture assuming a certain piece is in the start
+     * @param fromX x coordinate of the start
+     * @param fromY y coordinate of the start
+     * @param toX x coordinate of the end
+     * @param toY y coordinate of the end
+     * @param piece the piece to assume is in position
+     * @param ignoreList the list of places to count as empty
+     * @return true if possible
+     */
+    public boolean canCaptureAssumingPiece(int fromX, int fromY, int toX, int toY, int piece, ArrayList<Integer> ignoreList){
+        if (!canMoveAssumingPiece(fromX, fromY, toX, toY, piece, ignoreList)) return false; //can't capture if can't move
+        int color = piece/Math.abs(piece);
+        int xDirection = (fromX<toX?1:-1);
+        int yDirection = (fromY<toY?1:-1);
+
+        // check if the case right before the end is occupied by an enemy
+        // board[toX - (fromX<toX?-1:1)][toY - (fromY<toY?-1:1)] * piece > 0 -- since -n * -n = n^2 and n*0 = 0,
+        // will only return a negative if one of the piece is negative(black) and the other positive (white)
+        return Math.abs(piece) == 1 && board[toX - xDirection][toY - yDirection] * color < 0
+                && !ignoreList.contains((int)(Math.pow(2,toX-xDirection)*Math.pow(3, toY-yDirection)));
+    }
+
+    /**
+     * check if the following singular move is a possible capture assuming a certain piece is in the start
+     * @param fromX x coordinate of the start
+     * @param fromY y coordinate of the start
+     * @param toX x coordinate of the end
+     * @param toY y coordinate of the end
+     * @param piece the piece to assume is in position
+     * @return true if possible
+     */
+    public boolean canCaptureAssumingPiece(int fromX, int fromY, int toX, int toY, int piece){
+        return canCaptureAssumingPiece(fromX, fromY, toX, toY, piece, new ArrayList<>());
+    }
+
+    /**
+     * check if the piece can do the following move or chain of captures
+     * @param moves move[0] = (x,y) corresponding to the piece's current placement, move[1] and onwards corresponding to the following move (or moves in case of consecutive captures)
+     * @return true if the chain is possible
+     */
+    public boolean canMove(int[][] moves){
+        if(moves.length <2 || moves[0].length !=2 ) throw new IllegalArgumentException("moves must be an array of length > 2 of arrays of length 2");
+        int piece = this.board[moves[0][0]][moves[0][1]];
+
+        //if only doing one move, check if it is legal
+        if(moves.length == 2) return canMoveAssumingPiece(moves[0][0], moves[0][1], moves[1][0], moves[1][1], piece);
+
+        //if doing a chain of captures
+        //due to the way java equals arrays (it doesn't) we'll be storing a sum of prime factors under the form (2^x + 3^y)
+        ArrayList<Integer> ignoreList = new ArrayList<>();
+        for(int i = 1; i < moves.length; i++) {
+            // check if you can CAPTURE, return false if can't
+            if (!canCaptureAssumingPiece(moves[i][0], moves[i][1], moves[i + 1][0], moves[i + 1][1], piece, ignoreList)) return false;
+            //add capture to the ignorelist
+            ignoreList.add((int) (Math.pow(2,moves[i+1][0]-(moves[i][0]<moves[i+1][0]?1:-1)) * Math.pow(3, moves[i+1][1]-(moves[i][1]<moves[i+1][1]?1:-1))));
+        }
+        return true; // technically useless but the IDE is dumb so w/e
     }
 
     public int[][] getBoard(){
