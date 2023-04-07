@@ -12,7 +12,6 @@ public class Checkerboard {
      * -2 = white queen
      * 1 = black pawn
      * 2 = black queen
-     *
      * white begins on top, black on the bottom
      */
     private int[][] board;
@@ -106,8 +105,8 @@ public class Checkerboard {
 
     /**
      * use prime products to create a unique value corresponding to each case
-     * @param x
-     * @param y
+     * @param x - x coordinate
+     * @param y - y coordinate
      * @return the value of the given coordinates
      */
     private int caseValue(int x, int y){
@@ -252,10 +251,10 @@ public class Checkerboard {
     /**
      *
      * @param moves move[0] = (x,y) corresponding to the piece's current placement, move[1] and onwards corresponding to the following move (or moves in case of consecutive captures)
-     * @throws IllegalMoveException if the move is invalid
+     * @return false if the move is invalid
      */
-    public void move(int[][] moves) throws IllegalMoveException {
-        if(!canMove(moves)) throw new IllegalMoveException("the chosen move is illegal");
+    public boolean move(int[][] moves) {
+        if(!canMove(moves)) return false;
         board[moves[moves.length-1][0]][moves[moves.length-1][1]] = board[moves[0][0]][moves[0][1]]; //set the final case at the value of the first one
         board[moves[0][0]][moves[0][1]] = 0; //set the initial case at 0 (empty)
 
@@ -264,6 +263,7 @@ public class Checkerboard {
             //sets the case prior to the finish at 0, capturing any piece there (A1 -> F6, capture E5)
             board[moves[i+1][0]-(moves[i][0]<moves[i+1][0]?1:-1)][moves[i+1][1]-(moves[i][1]<moves[i+1][1]?1:-1)] = 0;
         }
+        return true;
     }
 
     public int[][] getBoard(){

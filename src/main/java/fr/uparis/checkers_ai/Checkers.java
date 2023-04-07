@@ -8,17 +8,21 @@ public abstract class Checkers {
      * current player (false for white, true for black)
      */
     private boolean current_player;
+
     /**
      * Checkerboard class
      */
     private Checkerboard board;
 
-    //TODO implement functions
     public Checkers(){
         this.board = new Checkerboard();
         this.current_player = false;
     }
 
+    public Checkers(boolean blackFirst){
+        this.board = new Checkerboard();
+        this.current_player = blackFirst;
+    }
 
     /**
      * if possible, move the piece selected to the selected places
@@ -26,7 +30,7 @@ public abstract class Checkers {
      * @return true if the move is correctly executed
      */
     public boolean play(int[][] move){
-        return false;
+        return this.board.move(move);
     }
 
     /**
@@ -43,5 +47,14 @@ public abstract class Checkers {
      */
     public int wonBy(){
         return board.wonBy();
+    }
+
+    @Override
+    public String toString() {
+        return board.toString();
+    }
+
+    public Checkerboard getBoard() {
+        return board;
     }
 }
