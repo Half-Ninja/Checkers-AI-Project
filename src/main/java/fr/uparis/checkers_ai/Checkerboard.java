@@ -269,4 +269,8 @@ public class Checkerboard {
     public int[][] getBoard(){
         return board;
     }
+
+    public int pieceAt(int x, int y){
+        return board[x][y];
+    }
 }
