@@ -57,4 +57,12 @@ public abstract class Checkers {
     public Checkerboard getBoard() {
         return board;
     }
+
+    public boolean currentPlayer() {
+        return current_player;
+    }
+
+    public void switchPlayer() {
+        this.current_player = !this.current_player;
+    }
 }
