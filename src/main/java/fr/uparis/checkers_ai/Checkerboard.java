@@ -8,10 +8,10 @@ import java.util.ArrayList;
 public class Checkerboard {
     /**
      * inner representation of the board
-     * -1 = white pawn
-     * -2 = white queen
-     * 1 = black pawn
-     * 2 = black queen
+     * -1 = black pawn
+     * -2 = black queen
+     * 1 = white pawn
+     * 2 = white queen
      * white begins on top, black on the bottom
      */
     private int[][] board;
