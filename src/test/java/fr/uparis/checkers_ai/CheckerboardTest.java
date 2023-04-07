@@ -92,11 +92,68 @@ public class CheckerboardTest {
 
     @Test
     void canCaptureAssumingPiece() {
-        //TODO JUNIT tests
+        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}};
+//      0+ + + +
+//      1 + b + +
+//      2+ + + +
+//      3 + b + +
+//      4+ + w +
+//      5 + + + +
+//      6+ + + +
+//      7 + + + +
+//       01234567
+        Checkerboard board = new Checkerboard(board_array);
+
+        // white capture black
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,3,5,1)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,2,6,1)); //w to up-rightx2 (no piece, no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,3,3,1)); //w to up-left (on piece, no cap)
+        Assertions.assertTrue(board.canCaptureAssumingPiece(4,4,2,2,1)); //w to up-leftx2 (past piece, cap)
+
+        //white attempts to capture w
+        Assertions.assertFalse(board.canCaptureAssumingPiece(5,3,4,4,1)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(5,3,3,5,1)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(6,2,4,4,1)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(6,2,3,5,1)); //w to up-right (no cap)
+
+        //queen captures
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,3,5,2)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,2,6,2)); //w to up-rightx2 (no piece, no cap)
+        Assertions.assertTrue(board.canCaptureAssumingPiece(5,1,2,4,2)); //5.1 to up-rightx3 (past piece, cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,3,3,2)); //w to up-left (on piece, no cap)
+        Assertions.assertTrue(board.canCaptureAssumingPiece(4,4,2,2,2)); //w to up-leftx2 (past piece, cap)
+
+        Assertions.assertFalse(board.canCaptureAssumingPiece(5,3,4,4,2)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(5,3,3,5,2)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(6,2,4,4,2)); //w to up-right (no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(6,2,3,5,2)); //w to up-right (no cap)
+
+        //ignoring the piece trying to capture
+        ArrayList<Integer> a = new ArrayList<>();
+        a.add(216);
+        Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,2,2,1, a)); //w to up-leftx2 (past ignored piece, no cap)
+        Assertions.assertFalse(board.canCaptureAssumingPiece(5,1,2,6,2, a)); //5.1 to up-rightx2 (past ignored piece, no cap)
+
     }
 
     @Test
     void canMove() {
-        //TODO JUNIT tests
+        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}};
+//      0+ + + +
+//      1 + b + +
+//      2+ + + +
+//      3 + b + +
+//      4+ + w +
+//      5 + + + +
+//      6+ + + +
+//      7 + + + +
+//       01234567
+        Checkerboard board = new Checkerboard(board_array);
+
+        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{3,5}}));
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,3}}));
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,5},{2,4}}));
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{2,2},{1,1}}));
+        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{2,2},{0,4}}));
     }
 }

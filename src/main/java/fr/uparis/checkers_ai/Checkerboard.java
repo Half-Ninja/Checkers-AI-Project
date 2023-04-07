@@ -13,11 +13,11 @@ public class Checkerboard {
      * 1 = black pawn
      * 2 = black queen
      *
+     * white begins on top, black on the bottom
      */
     private int[][] board;
 
 
-    //TODO implement functions
 
     /**
      * creates a new board in its base state.
@@ -105,6 +105,16 @@ public class Checkerboard {
     }
 
     /**
+     * use prime products to create a unique value corresponding to each case
+     * @param x
+     * @param y
+     * @return the value of the given coordinates
+     */
+    private int caseValue(int x, int y){
+        return (int)(Math.pow(2,x)*Math.pow(3, y));
+    }
+
+    /**
      * check if the following singular move is possible, assuming a certain piece is in the start, accounts for captures
      * @param fromX x coordinate of the start
      * @param fromY y coordinate of the start
@@ -117,7 +127,7 @@ public class Checkerboard {
     public boolean canMoveAssumingPiece(int fromX, int fromY, int toX, int toY, int piece, ArrayList<Integer> ignoreList){
         // if no piece or not a diagonal or the destination full return false
         if (piece == 0 || Math.abs(fromX - toX) != Math.abs(fromY - toY) ||
-                (board[toX][toY] != 0 && ! ignoreList.contains((int)(Math.pow(2,toX)*Math.pow(3, toY))))) return false;
+                (board[toX][toY] != 0 && ! ignoreList.contains(caseValue(toX, toY)))) return false;
 
         int yDirection = (fromY<toY?1:-1);
 
@@ -130,12 +140,12 @@ public class Checkerboard {
 
             // check if it is a valid capture
             // fromX-toX == 2 * piece -- make sure the piece moves two ranks/columns
-            // board[toX - piece][toY - yDirection] * piece > 0 -- since -n * -n = n^2 and n*0 = 0,
+            // board[toX + piece][toY - yDirection] * piece > 0 -- since -n * -n = n^2 and n*0 = 0,
             // will only return a negative if one of the piece is negative(black) and the other positive (white)
             //
             // also checks if the piece is not ignored
-            if (fromX-toX == 2 * piece && board[toX - piece][toY - yDirection] * piece < 0
-                    && !ignoreList.contains((int)(Math.pow(2,toX-piece)*Math.pow(3, toY-yDirection)))) return true;
+            if (fromX-toX == 2 * piece && board[toX + piece][toY - yDirection] * piece < 0
+                    && !ignoreList.contains(caseValue(toX+piece, toY-yDirection))) return true;
         }
 
         // if a queen
@@ -146,8 +156,8 @@ public class Checkerboard {
 
             int xDirection = (fromX<toX?1:-1);
 
-            // checks is the path is empty
-            int prevCaseValue = (int)(Math.pow(2, toX - xDirection) * Math.pow(3, toY - yDirection));
+            // checks if the path is empty
+            int prevCaseValue = caseValue(toX - xDirection, toY - yDirection);
             for(int i = 0; i < toX - fromX ; i++)
                 for(int j = fromY + yDirection; j != toY - yDirection; j += yDirection){
                     if(board[i*xDirection][j*yDirection] != 0  // checks if the current piece is empty
@@ -198,8 +208,8 @@ public class Checkerboard {
         // check if the case right before the end is occupied by an enemy
         // board[toX - (fromX<toX?-1:1)][toY - (fromY<toY?-1:1)] * piece > 0 -- since -n * -n = n^2 and n*0 = 0,
         // will only return a negative if one of the piece is negative(black) and the other positive (white)
-        return Math.abs(piece) == 1 && board[toX - xDirection][toY - yDirection] * color < 0
-                && !ignoreList.contains((int)(Math.pow(2,toX-xDirection)*Math.pow(3, toY-yDirection)));
+        return board[toX - xDirection][toY - yDirection] * color < 0
+                && !ignoreList.contains(caseValue(toX-xDirection, toY-yDirection));
     }
 
     /**
@@ -230,13 +240,30 @@ public class Checkerboard {
         //if doing a chain of captures
         //due to the way java equals arrays (it doesn't) we'll be storing a sum of prime factors under the form (2^x + 3^y)
         ArrayList<Integer> ignoreList = new ArrayList<>();
-        for(int i = 1; i < moves.length; i++) {
+        for(int i = 0; i < moves.length - 1; i++) {
             // check if you can CAPTURE, return false if can't
             if (!canCaptureAssumingPiece(moves[i][0], moves[i][1], moves[i + 1][0], moves[i + 1][1], piece, ignoreList)) return false;
             //add capture to the ignorelist
-            ignoreList.add((int) (Math.pow(2,moves[i+1][0]-(moves[i][0]<moves[i+1][0]?1:-1)) * Math.pow(3, moves[i+1][1]-(moves[i][1]<moves[i+1][1]?1:-1))));
+            ignoreList.add(caseValue(moves[i+1][0]-(moves[i][0]<moves[i+1][0]?1:-1), moves[i+1][1]-(moves[i][1]<moves[i+1][1]?1:-1)));
         }
-        return true; // technically useless but the IDE is dumb so w/e
+        return true;
+    }
+
+    /**
+     *
+     * @param moves move[0] = (x,y) corresponding to the piece's current placement, move[1] and onwards corresponding to the following move (or moves in case of consecutive captures)
+     * @throws IllegalMoveException if the move is invalid
+     */
+    public void move(int[][] moves) throws IllegalMoveException {
+        if(!canMove(moves)) throw new IllegalMoveException("the chosen move is illegal");
+        board[moves[moves.length-1][0]][moves[moves.length-1][1]] = board[moves[0][0]][moves[0][1]]; //set the final case at the value of the first one
+        board[moves[0][0]][moves[0][1]] = 0; //set the initial case at 0 (empty)
+
+        //for each move
+        for(int i = 0; i < moves.length - 1; i++){
+            //sets the case prior to the finish at 0, capturing any piece there (A1 -> F6, capture E5)
+            board[moves[i+1][0]-(moves[i][0]<moves[i+1][0]?1:-1)][moves[i+1][1]-(moves[i][1]<moves[i+1][1]?1:-1)] = 0;
+        }
     }
 
     public int[][] getBoard(){

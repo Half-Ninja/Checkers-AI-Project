@@ -19,10 +19,11 @@ public abstract class Checkers {
         this.current_player = false;
     }
 
+
     /**
      * if possible, move the piece selected to the selected places
      * @param move move[0] = (x,y) corresponding to the piece's current placement, move[1] and onwards corresponding to the following move (or moves in case of consecutive captures)
-     * @return true if the move can be executed
+     * @return true if the move is correctly executed
      */
     public boolean play(int[][] move){
         return false;
