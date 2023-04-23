@@ -16,9 +16,6 @@ public class Checkerboard {
      */
     private int[][] board;
 
-    // Last mouvement made
-    private int[][] lastMove;
-
     /**
      * creates a new board in its base state.
      */
@@ -312,7 +309,6 @@ public class Checkerboard {
             board[moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1)][moves[i + 1][1]
                     - (moves[i][1] < moves[i + 1][1] ? 1 : -1)] = 0;
         }
-        lastMove = moves;// Save this move
         return true;
     }
 
@@ -322,10 +318,6 @@ public class Checkerboard {
 
     public int pieceAt(int x, int y) {
         return board[x][y];
-    }
-
-    public int[][] getLastMove() {
-        return lastMove;
     }
 
     // TODO return all the legals moves of the player
