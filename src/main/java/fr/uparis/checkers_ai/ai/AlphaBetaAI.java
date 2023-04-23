@@ -37,15 +37,42 @@ public class AlphaBetaAI implements AI {
         int beta = Integer.MAX_VALUE;
         int depth = 0;
 
-        while (depth <= maxDepth) {
-            int value = alphaBeta(board, alpha, beta, depth, player);
-            if (value == Integer.MAX_VALUE || value == Integer.MIN_VALUE) {
-                break;
+        //first level of the alpha-beta tree
+        ArrayList<int[][]> moves = board.getAllMoves(player);
+
+        if (player) {
+            int max = Integer.MIN_VALUE;
+            for (int[][] move : moves) {
+                Checkerboard newBoard = new Checkerboard(board.getBoard());
+                newBoard.move(move);
+                int value = alphaBeta(newBoard, alpha, beta, depth + 1, false);
+                if (value > max) {
+                    max = value;
+                    bestMove = move;
+                    if (max >= beta)
+                        return bestMove;
+                    if (max > alpha)
+                        alpha = max;
+                }
             }
-            bestMove = board.getLastMove();
-            depth++;
+            return bestMove;
+        } else {
+            int min = Integer.MAX_VALUE;
+            for (int[][] move : moves) {
+                Checkerboard newBoard = new Checkerboard(board.getBoard());
+                newBoard.move(move);
+                int value = alphaBeta(newBoard, alpha, beta, depth + 1, true);
+                if (value < min) {
+                    min = value;
+                    bestMove = move;
+                    if (min <= alpha)
+                        return bestMove;
+                    if (min < beta)
+                        beta = min;
+                }
+            }
+            return bestMove;
         }
-        return bestMove;
     }
 
     /**
