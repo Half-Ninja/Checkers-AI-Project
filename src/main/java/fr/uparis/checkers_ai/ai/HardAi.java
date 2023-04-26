@@ -49,12 +49,12 @@ public class HardAi extends AlphaBetaAI {
         // small center
         if (board[4][3] > 0)
             score++;
-        else
+        else if (board[4][3] < 0)
             score--;
 
         if (board[3][4] > 0)
             score++;
-        else
+        else if (board[3][4] < 0)
             score--;
 
         return score;
@@ -75,9 +75,9 @@ public class HardAi extends AlphaBetaAI {
             for (int j = 0; j < board.length; j++) {
                 if (board[i][j] != -2 && board[i][j] != 2 && board[i][j] != 0) {
                     if (board[i][j] > 0)
-                        score += board.length - j - 1;
+                        score += board.length - i - 1;
                     else
-                        score += j;
+                        score += i;
                 }
             }
         }
