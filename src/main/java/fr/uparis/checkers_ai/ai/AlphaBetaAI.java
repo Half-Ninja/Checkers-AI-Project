@@ -24,7 +24,8 @@ public class AlphaBetaAI implements AI {
      * Calculate the best move
      * 
      * @param board  the checkerboard to evaluate
-     * @param player The player to optimize the evaluation function for (true for white, false for black)
+     * @param player The player to optimize the evaluation function for (true for
+     *               white, false for black)
      * @return an array corresponding to the move, the first index corresponding to
      *         the piece's current placement, and each subsequennt index
      *         corresponding to the following move (or moves in case of consecutive
@@ -37,7 +38,7 @@ public class AlphaBetaAI implements AI {
         int beta = Integer.MAX_VALUE;
         int depth = 0;
 
-        //first level of the alpha-beta tree
+        // first level of the alpha-beta tree
         ArrayList<int[][]> moves = board.getAllMoves(player);
 
         if (player) {
@@ -82,7 +83,8 @@ public class AlphaBetaAI implements AI {
      * @param alpha  The alpha value for alpha-beta pruning
      * @param beta   The beta value for alpha-beta pruning
      * @param depth  The current depth in the search tree
-     * @param player The player to optimize the evaluation function for (true for white, false for black)
+     * @param player The player to optimize the evaluation function for (true for
+     *               white, false for black)
      * @return The value of the best move found
      */
     private int alphaBeta(Checkerboard board, int alpha, int beta, int depth, boolean player) {
@@ -133,12 +135,28 @@ public class AlphaBetaAI implements AI {
      * @param board the checkerboard to evaluate
      * @return The evaluation score for the given board state
      */
-    private int evaluate(Checkerboard board) {
+    public int evaluate(Checkerboard board) {
+        return pieceEvaluation(board.getBoard());
+    }
+
+    /**
+     * Evaluates the pieces of a given board state.
+     * 10 for a queen and 1 for a pawn
+     * Negative values are better for black, positive for white
+     *
+     * @param board the checkerboard to evaluate
+     * @return The evaluation score for the given board state
+     */
+    public int pieceEvaluation(int[][] board) {
         int score = 0;
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++) {
-                score += board.getBoard()[i][j];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (board[i][j] == -2 || board[i][j] == 2) // if a queen
+                    score += board[i][j] * 5;
+                else
+                    score += board[i][j];
             }
+        }
         return score;
     }
 }
