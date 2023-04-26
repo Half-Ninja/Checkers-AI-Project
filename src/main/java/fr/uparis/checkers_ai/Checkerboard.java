@@ -1,7 +1,6 @@
 package fr.uparis.checkers_ai;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * base checkers classes containing the base functions of the class
@@ -295,8 +294,22 @@ public class Checkerboard {
             if (!canCaptureAssumingPiece(moves[i][0], moves[i][1], moves[i + 1][0], moves[i + 1][1], piece, ignoreList))
                 return false;
             // add capture to the ignorelist
-            ignoreList.add(caseValue(moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1),
-                    moves[i + 1][1] - (moves[i][1] < moves[i + 1][1] ? 1 : -1)));
+            switch (Math.abs(piece)){
+                case 1:
+                    // adds the case prior to the finish to ignorelist
+                    ignoreList.add(caseValue(moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1),
+                            moves[i + 1][1] - (moves[i][1] < moves[i + 1][1] ? 1 : -1)));
+                case 2:
+                    int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
+                    int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
+                    //folow the path to add any piece to the ignorelist
+                    for(int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++){
+                        if( board[moves[i][0]+(j*xdir)][moves[i][1]+(j*ydir)] != 0) {
+                            ignoreList.add(caseValue(moves[i][0] + (j * xdir), moves[i][1] + (j * ydir)));
+                            break; // one case max can be encountered, no need to finish the loop
+                        }
+                    }
+            }
         }
         return true;
     }
@@ -311,7 +324,7 @@ public class Checkerboard {
     public boolean move(int[][] moves) {
         if (!canMove(moves))
             return false;
-        int piece = Math.abs(board[moves[0][0]][moves[0][1]]);
+        int piece = board[moves[0][0]][moves[0][1]];
         board[moves[moves.length - 1][0]][moves[moves.length - 1][1]] = board[moves[0][0]][moves[0][1]]; // set the
                                                                                                          // final case
                                                                                                          // at the value
@@ -321,20 +334,22 @@ public class Checkerboard {
 
         // for each move
         for (int i = 0; i < moves.length - 1; i++) {
-            switch (piece){
-                case 1:
-                    // sets the case prior to the finish at 0, capturing any piece there (D4 -> F6,
-                    // capture E5)
+            switch (Math.abs(piece)) {
+                case 1 -> {
+                    // sets the case prior to the finish at 0, capturing any piece there (D4 -> F6, capture E5)
                     board[moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1)][moves[i + 1][1]
                             - (moves[i][1] < moves[i + 1][1] ? 1 : -1)] = 0;
-                    break;
-                case 2:
+                    if (moves[moves.length - 1][0] == (piece > 0 ? 0 : 7)) //if on last line
+                        board[moves[moves.length - 1][0]][moves[moves.length - 1][1]] = piece * 2; //turn into a queen
+                }
+                case 2 -> {
                     int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
                     int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
                     //folow the path to capture any piece
-                    for(int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++){
-                        board[moves[i][0]+(j*xdir)][moves[i][1]+(j*ydir)] = 0;
+                    for (int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++) {
+                        board[moves[i][0] + (j * xdir)][moves[i][1] + (j * ydir)] = 0;
                     }
+                }
             }
         }
         return true;
@@ -365,26 +380,65 @@ public class Checkerboard {
                 switch (player?this.board[line][column]:-this.board[line][column]){
                     case 1:
                         int xdir = player?-1:1; //goes up if white, down if black
-                        move[1] = new int[]{line + xdir, column-1};
-
-                        if(column>0 && canMove(move)){
-                            res.add(move);
-
-                            //if move is a capture
-                            boolean newCapture = canCaptureAssumingPiece(move[0][0],move[0][1], move[1][0], move[1][1], player?1:-1);
-                            while(newCapture){
-                                int chainLength = move.length + 1 ;
-                                int[][] newmove = new int[chainLength][2];
-                                System.arraycopy(move, 0, newmove, 0, move.length);
-                                newCapture = false;
-                                //TODO finish
+                        // if moving doesn't get you off the board
+                        if(player?line + xdir >= 0: line + xdir < board.length) {
+                            // move left
+                            move = new int[][]{move[0],{line + xdir, column - 1}};
+                            if (move[1][1] >= 0 && canMove(move)) {
+                                res.add(move);
                             }
+                            // move right
+                            move = new int[][]{move[0],{line + xdir, column + 1}};
+                            if (column + 1 < board.length && canMove(move)) {
+                                res.add(move);
+                            }
+
+                            res.addAll(calculateCaptureChain(new int[][]{move[0]}));
                         }
-                        break;
-                    case 2 :break;
+                    case 2 : res = res; break;
                 }
             }
 
+        return res;
+    }
+
+    /**
+     * calculate the immediate child captures from a given start chain
+     * @param start the begining of the capture chain, minimum length 1 ( start case, e.g. {{4,4}} )
+     * @return an arraylist containing all possible chains starting with start. can be empty
+     */
+    private ArrayList<int[][]> calculateCaptureChain(int[][] start){
+        ArrayList<int[][]> res = new ArrayList<>();
+        int piece = this.board[start[0][0]][start[0][1]];
+        if (piece == 0) return res;
+        // if capturing doesn't get you off the board
+        switch (Math.abs(piece)) {
+            case 1 -> {
+                int line = start[start.length-1][0], column = start[start.length-1][1],xdir = piece>0?-2:2;
+                if ((piece > 0) ? (line + xdir >= 0) : (line + xdir < 8)) {
+                    // initialise new move
+                    int[][] move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+
+                    // capture left
+                    move[start.length] = new int[]{line + xdir, column - 2};
+                    if (move[start.length][1] >= 0 && canMove(move)) {
+                        res.add(move);
+                        res.addAll(calculateCaptureChain(move));
+                    }
+
+                    // capture right
+                    move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+                    move[start.length] = new int[]{line + xdir, column + 2};
+                    if (move[1][1] < board.length && canMove(move)) {
+                        res.add(move);
+                        res.addAll(calculateCaptureChain(move));
+                    }
+                }
+            }
+            case 2 -> res = res;
+        }
         return res;
     }
 }

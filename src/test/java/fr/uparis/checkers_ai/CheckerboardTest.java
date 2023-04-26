@@ -177,20 +177,56 @@ public class CheckerboardTest {
 //       01234567
         Checkerboard board = new Checkerboard(board_array);
 
-        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{3,5}}));
+        Assertions.assertTrue(board.move(new int[][]{{4,4},{3,5}}));
         board = new Checkerboard(board_array);
-        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,3}}));
+        Assertions.assertFalse(board.move(new int[][]{{4,4},{3,3}}));
         board = new Checkerboard(board_array);
-        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,5},{2,4}}));
+        Assertions.assertFalse(board.move(new int[][]{{4,4},{3,5},{2,4}}));
         board = new Checkerboard(board_array);
-        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{2,2},{1,1}}));
+        Assertions.assertFalse(board.move(new int[][]{{4,4},{2,2},{1,1}}));
         board = new Checkerboard(board_array);
-        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{2,2},{0,4}}));
+        Assertions.assertTrue(board.move(new int[][]{{4,4},{2,2},{0,4}}));
 
         board_array[6][0] =2;
         board = new Checkerboard(board_array);
-        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{2,4}}));
+        Assertions.assertTrue(board.move(new int[][]{{6,0},{2,4}}));
         board = new Checkerboard(board_array);
-        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{1,5}}));
+        Assertions.assertTrue(board.move(new int[][]{{6,0},{1,5}}));
+        board_array[6][0] = -1;
+        board = new Checkerboard(board_array);
+        Assertions.assertTrue(board.move(new int[][]{{6,0},{7,1}}));
+        int[][] boardCheck = new int[][]{{0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,-2,0,0,0,0,0,0}};
+        Checkerboard b_test = new Checkerboard(boardCheck);
+        Assertions.assertEquals(board.toString(), b_test.toString()); //this is the simplest way to check if the boards are identical don't @ me
+    }
+
+    @Test
+    void getAllMoves() {
+        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,1,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,1,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}};
+//      0+ + + +
+//      1 w b + +
+//      2+ + + +
+//      3 + b + +
+//      4+ w w +
+//      5 + + + +
+//      6+ + + +
+//      7 + + + +
+//       01234567
+        Checkerboard board = new Checkerboard(board_array);
+        ArrayList<int[][]> resa = board.getAllMoves(true);
+        for(int[][] l : resa){
+            StringBuilder res = new StringBuilder();
+            res.append('{');
+            for (int[] m : l){
+                res.append('{');
+                res.append(m[0]);
+                res.append(',');
+                res.append(m[1]);
+                res.append('}');
+            }
+            res.append('}');
+            System.out.println(res.toString());
+        }
+        System.out.println(board.canMove(new int[][]{{4,2},{3,3}}));
     }
 }
