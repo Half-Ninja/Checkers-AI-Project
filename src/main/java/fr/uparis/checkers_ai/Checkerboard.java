@@ -1,6 +1,7 @@
 package fr.uparis.checkers_ai;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * base checkers classes containing the base functions of the class
@@ -14,7 +15,7 @@ public class Checkerboard {
      * 2 = white queen
      * white begins on top, black on the bottom
      */
-    private int[][] board;
+    private final int[][] board;
 
     /**
      * creates a new board in its base state.
@@ -172,24 +173,20 @@ public class Checkerboard {
             int xDirection = (fromX < toX ? 1 : -1);
 
             // checks if the path is empty
-            int prevCaseValue = caseValue(toX - xDirection, toY - yDirection);
-            for (int i = 0; i < toX - fromX; i++)
-                for (int j = fromY + yDirection; j != toY - yDirection; j += yDirection) {
-                    if (board[i * xDirection][j * yDirection] != 0 // checks if the current piece is empty
-                            && !ignoreList.contains(prevCaseValue)) // OR ignored
-                        return false;
+            boolean enemyPassed = false;
+            int j = fromY +yDirection;
+            for (int i = fromX + xDirection; i != toX; i+= xDirection){
+                //check if the peice is an enemy piece
+                if (board[i][j] * piece < 0){
+                    if (enemyPassed) return false;
+                    enemyPassed = true;
                 }
+                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignorelist
+                    return false;
+                j+= yDirection;
+            }
 
-            // checks is the case before the end is empty (path free) OR enemy (capture)
-            // board[toX - piece][toY - yDirection] * piece > 0 -- since -n * n = -n^2 and
-            // n*0 = 0,
-            // will only return a positive if both pieces is negative(black) and the other
-            // positive (white)
-            // therefore by reversing the result, we will get true if board[toX - piece][toY
-            // - yDirection]
-            // is either opposite to piece OR 0
-            return !(board[toX - xDirection][toY - yDirection] * piece > 0)
-                    || ignoreList.contains(prevCaseValue);
+            return true;
         }
         return false;
     }
@@ -223,12 +220,31 @@ public class Checkerboard {
      */
     public boolean canCaptureAssumingPiece(int fromX, int fromY, int toX, int toY, int piece,
             ArrayList<Integer> ignoreList) {
-        if (!canMoveAssumingPiece(fromX, fromY, toX, toY, piece, ignoreList))
+        if (!canMoveAssumingPiece(fromX, fromY, toX, toY, piece, ignoreList) || Math.abs(fromX - toX) < 2)
             return false; // can't capture if can't move
         int color = piece / Math.abs(piece);
         int xDirection = (fromX < toX ? 1 : -1);
         int yDirection = (fromY < toY ? 1 : -1);
 
+        //if a queen
+        if(Math.abs(piece) == 2 ){
+            // checks if the path is empty
+            boolean enemyPassed = false;
+            int j = fromY +yDirection;
+            for (int i = fromX + xDirection; i != toX; i+= xDirection){
+                //check if the peice is an enemy piece
+                if (board[i][j] * piece < 0){
+                    if (enemyPassed) return false;
+                    enemyPassed = true;
+                }
+                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignorelist
+                    return false;
+                j+= yDirection;
+            }
+
+            return enemyPassed;
+        }
+        // if a pawn
         // check if the case right before the end is occupied by an enemy
         // board[toX - (fromX<toX?-1:1)][toY - (fromY<toY?-1:1)] * piece > 0 -- since -n
         // * -n = n^2 and n*0 = 0,
@@ -295,6 +311,7 @@ public class Checkerboard {
     public boolean move(int[][] moves) {
         if (!canMove(moves))
             return false;
+        int piece = Math.abs(board[moves[0][0]][moves[0][1]]);
         board[moves[moves.length - 1][0]][moves[moves.length - 1][1]] = board[moves[0][0]][moves[0][1]]; // set the
                                                                                                          // final case
                                                                                                          // at the value
@@ -304,10 +321,21 @@ public class Checkerboard {
 
         // for each move
         for (int i = 0; i < moves.length - 1; i++) {
-            // sets the case prior to the finish at 0, capturing any piece there (A1 -> F6,
-            // capture E5)
-            board[moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1)][moves[i + 1][1]
-                    - (moves[i][1] < moves[i + 1][1] ? 1 : -1)] = 0;
+            switch (piece){
+                case 1:
+                    // sets the case prior to the finish at 0, capturing any piece there (D4 -> F6,
+                    // capture E5)
+                    board[moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1)][moves[i + 1][1]
+                            - (moves[i][1] < moves[i + 1][1] ? 1 : -1)] = 0;
+                    break;
+                case 2:
+                    int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
+                    int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
+                    //folow the path to capture any piece
+                    for(int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++){
+                        board[moves[i][0]+(j*xdir)][moves[i][1]+(j*ydir)] = 0;
+                    }
+            }
         }
         return true;
     }
@@ -321,8 +349,42 @@ public class Checkerboard {
     }
 
     // TODO return all the legals moves of the player
+    /**
+     * Calculate the possible moves for a given player (true for white, false for black)
+     * @param player the player to calculate moves for
+     * @return the moves inside an ArrayList
+     */
     public ArrayList<int[][]> getAllMoves(boolean player) {
-        ArrayList<int[][]> possibleMoves = new ArrayList<int[][]>();
-        return possibleMoves;
+        ArrayList<int[][]> res = new ArrayList<>();
+
+        for (int line = 0; line < this.board.length; line++)
+            for (int column = 0; column < this.board[line].length; column++){
+                int[][] move = new int[2][2];
+                move[0] = new int[]{line, column};
+
+                switch (player?this.board[line][column]:-this.board[line][column]){
+                    case 1:
+                        int xdir = player?-1:1; //goes up if white, down if black
+                        move[1] = new int[]{line + xdir, column-1};
+
+                        if(column>0 && canMove(move)){
+                            res.add(move);
+
+                            //if move is a capture
+                            boolean newCapture = canCaptureAssumingPiece(move[0][0],move[0][1], move[1][0], move[1][1], player?1:-1);
+                            while(newCapture){
+                                int chainLength = move.length + 1 ;
+                                int[][] newmove = new int[chainLength][2];
+                                System.arraycopy(move, 0, newmove, 0, move.length);
+                                newCapture = false;
+                                //TODO finish
+                            }
+                        }
+                        break;
+                    case 2 :break;
+                }
+            }
+
+        return res;
     }
 }

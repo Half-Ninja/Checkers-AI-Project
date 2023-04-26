@@ -117,6 +117,8 @@ public class CheckerboardTest {
         Assertions.assertFalse(board.canCaptureAssumingPiece(6,2,3,5,1)); //w to up-right (no cap)
 
         //queen captures
+
+        Assertions.assertTrue(board.canCaptureAssumingPiece(4,4,0,0,2)); //w to up-leftx4 (past piece, cap)
         Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,3,5,2)); //w to up-right (no cap)
         Assertions.assertFalse(board.canCaptureAssumingPiece(4,4,2,6,2)); //w to up-rightx2 (no piece, no cap)
         Assertions.assertTrue(board.canCaptureAssumingPiece(5,1,2,4,2)); //5.1 to up-rightx3 (past piece, cap)
@@ -155,5 +157,40 @@ public class CheckerboardTest {
         Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,5},{2,4}}));
         Assertions.assertFalse(board.canMove(new int[][]{{4,4},{2,2},{1,1}}));
         Assertions.assertTrue(board.canMove(new int[][]{{4,4},{2,2},{0,4}}));
+
+        board_array[6][0] =2;
+        board = new Checkerboard(board_array);
+        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{2,4}}));
+        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{1,5}}));
+    }
+    @Test
+    void move() {
+        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,0,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}};
+//      0+ + + +
+//      1 + b + +
+//      2+ + + +
+//      3 + b + +
+//      4+ + w +
+//      5 + + + +
+//      6+ + + +
+//      7 + + + +
+//       01234567
+        Checkerboard board = new Checkerboard(board_array);
+
+        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{3,5}}));
+        board = new Checkerboard(board_array);
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,3}}));
+        board = new Checkerboard(board_array);
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{3,5},{2,4}}));
+        board = new Checkerboard(board_array);
+        Assertions.assertFalse(board.canMove(new int[][]{{4,4},{2,2},{1,1}}));
+        board = new Checkerboard(board_array);
+        Assertions.assertTrue(board.canMove(new int[][]{{4,4},{2,2},{0,4}}));
+
+        board_array[6][0] =2;
+        board = new Checkerboard(board_array);
+        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{2,4}}));
+        board = new Checkerboard(board_array);
+        Assertions.assertTrue(board.canMove(new int[][]{{6,0},{1,5}}));
     }
 }
