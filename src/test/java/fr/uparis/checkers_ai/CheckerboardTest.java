@@ -202,15 +202,15 @@ public class CheckerboardTest {
 
     @Test
     void getAllMoves() {
-        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,1,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,1,0,1,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}};
+        int[][] board_array = {{0,0,0,0,0,0,0,0}, {0,1,0,-1,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,-1,0,0,0,0}, {0,0,1,0,1,0,0,0}, {0,0,0,0,0,-1,0,0}, {0,0,0,0,0,0,0,0}, {0,0,0,2,0,0,0,0}};
 //      0+ + + +
 //      1 w b + +
 //      2+ + + +
 //      3 + b + +
 //      4+ w w +
-//      5 + + + +
+//      5 + + b +
 //      6+ + + +
-//      7 + + + +
+//      7 + W + +
 //       01234567
         Checkerboard board = new Checkerboard(board_array);
         ArrayList<int[][]> resa = board.getAllMoves(true);
@@ -225,8 +225,11 @@ public class CheckerboardTest {
                 res.append('}');
             }
             res.append('}');
-            System.out.println(res.toString());
+            System.out.println(res);
         }
-        System.out.println(board.canMove(new int[][]{{4,2},{3,3}}));
+        System.out.println(board);
+        System.out.println(board.move(new int[][]{{7,3},{3,7},{7,3}}));
+        System.out.println(board);
+
     }
 }

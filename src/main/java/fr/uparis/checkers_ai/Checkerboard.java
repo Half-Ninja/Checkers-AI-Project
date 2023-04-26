@@ -286,8 +286,8 @@ public class Checkerboard {
             return canMoveAssumingPiece(moves[0][0], moves[0][1], moves[1][0], moves[1][1], piece);
 
         // if doing a chain of captures
-        // due to the way java equals arrays (it doesn't) we'll be storing a sum of
-        // prime factors under the form (2^x + 3^y)
+        // due to the way java equals arrays (it doesn't) we'll be storing a product of
+        // prime factors under the form (2^x * 3^y)
         ArrayList<Integer> ignoreList = new ArrayList<>();
         for (int i = 0; i < moves.length - 1; i++) {
             // check if you can CAPTURE, return false if can't
@@ -303,7 +303,7 @@ public class Checkerboard {
                     int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
                     int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
                     //folow the path to add any piece to the ignorelist
-                    for(int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++){
+                    for(int j = 1; j <= Math.abs(moves[i][0] - moves[i + 1][0]); j++){
                         if( board[moves[i][0]+(j*xdir)][moves[i][1]+(j*ydir)] != 0) {
                             ignoreList.add(caseValue(moves[i][0] + (j * xdir), moves[i][1] + (j * ydir)));
                             break; // one case max can be encountered, no need to finish the loop
@@ -346,7 +346,7 @@ public class Checkerboard {
                     int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
                     int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
                     //folow the path to capture any piece
-                    for (int j = 0; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++) {
+                    for (int j = 1; j < Math.abs(moves[i][0] - moves[i + 1][0]); j++) {
                         board[moves[i][0] + (j * xdir)][moves[i][1] + (j * ydir)] = 0;
                     }
                 }
@@ -363,7 +363,6 @@ public class Checkerboard {
         return board[x][y];
     }
 
-    // TODO return all the legals moves of the player
     /**
      * Calculate the possible moves for a given player (true for white, false for black)
      * @param player the player to calculate moves for
@@ -377,25 +376,28 @@ public class Checkerboard {
                 int[][] move = new int[2][2];
                 move[0] = new int[]{line, column};
 
-                switch (player?this.board[line][column]:-this.board[line][column]){
-                    case 1:
-                        int xdir = player?-1:1; //goes up if white, down if black
+                switch (player ? this.board[line][column] : -this.board[line][column]) {
+                    case 1 -> {
+                        int xdir = player ? -1 : 1; //goes up if white, down if black
+
                         // if moving doesn't get you off the board
-                        if(player?line + xdir >= 0: line + xdir < board.length) {
+                        if (player ? line + xdir >= 0 : line + xdir < board.length) {
                             // move left
-                            move = new int[][]{move[0],{line + xdir, column - 1}};
+                            move = new int[][]{move[0], {line + xdir, column - 1}};
                             if (move[1][1] >= 0 && canMove(move)) {
                                 res.add(move);
                             }
                             // move right
-                            move = new int[][]{move[0],{line + xdir, column + 1}};
+                            move = new int[][]{move[0], {line + xdir, column + 1}};
                             if (column + 1 < board.length && canMove(move)) {
                                 res.add(move);
                             }
 
-                            res.addAll(calculateCaptureChain(new int[][]{move[0]}));
+                            res.addAll(calculateMoveChain(new int[][]{move[0]}));
                         }
-                    case 2 : res = res; break;
+                    }
+                    case 2 ->
+                            res.addAll(calculateMoveChain(new int[][]{{line, column}})); // as queen movement makes no difference between capture and non capture moves, this is more efficient
                 }
             }
 
@@ -403,18 +405,19 @@ public class Checkerboard {
     }
 
     /**
-     * calculate the immediate child captures from a given start chain
+     * calculate the immediate childs from a given start chain, only takes into account queen moves and pawn captures for efficiency
      * @param start the begining of the capture chain, minimum length 1 ( start case, e.g. {{4,4}} )
      * @return an arraylist containing all possible chains starting with start. can be empty
      */
-    private ArrayList<int[][]> calculateCaptureChain(int[][] start){
+    private ArrayList<int[][]> calculateMoveChain(int[][] start){
         ArrayList<int[][]> res = new ArrayList<>();
         int piece = this.board[start[0][0]][start[0][1]];
         if (piece == 0) return res;
+        int line = start[start.length-1][0], column = start[start.length-1][1];
         // if capturing doesn't get you off the board
         switch (Math.abs(piece)) {
             case 1 -> {
-                int line = start[start.length-1][0], column = start[start.length-1][1],xdir = piece>0?-2:2;
+                int xdir = piece>0?-2:2;
                 if ((piece > 0) ? (line + xdir >= 0) : (line + xdir < 8)) {
                     // initialise new move
                     int[][] move = new int[start.length + 1][2];
@@ -424,7 +427,7 @@ public class Checkerboard {
                     move[start.length] = new int[]{line + xdir, column - 2};
                     if (move[start.length][1] >= 0 && canMove(move)) {
                         res.add(move);
-                        res.addAll(calculateCaptureChain(move));
+                        res.addAll(calculateMoveChain(move));
                     }
 
                     // capture right
@@ -433,11 +436,47 @@ public class Checkerboard {
                     move[start.length] = new int[]{line + xdir, column + 2};
                     if (move[1][1] < board.length && canMove(move)) {
                         res.add(move);
-                        res.addAll(calculateCaptureChain(move));
+                        res.addAll(calculateMoveChain(move));
                     }
                 }
             }
-            case 2 -> res = res;
+            case 2 -> {
+
+                for(int i = 1; i < Math.max(Math.max(line, 7-line),Math.max(column, 7-column));i++){
+                    //up-left
+                    int[][] move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+                    move[start.length] = new int[]{line - i, column - i};
+                    if(move[start.length][0] >=0 && move[start.length][1] >=0 && canMove(move)){
+                        res.add(move);
+                        res.addAll(calculateMoveChain(move));
+                    }
+                    //up-right
+                    move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+                    move[start.length] = new int[]{line - i, column + i};
+                    if(move[start.length][0] >=0 && move[start.length][1] < board.length && canMove(move)){
+                        res.add(move);
+                        res.addAll(calculateMoveChain(move));
+                    }
+                    //down-left
+                    move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+                    move[start.length] = new int[]{line + i, column - i};
+                    if(move[start.length][0] < board.length&& move[start.length][1] >=0 && canMove(move)){
+                        res.add(move);
+                        res.addAll(calculateMoveChain(move));
+                    }
+                    //down-right
+                    move = new int[start.length + 1][2];
+                    System.arraycopy(start, 0, move, 0, start.length);
+                    move[start.length] = new int[]{line + i, column + i};
+                    if(move[start.length][0] < board.length&& move[start.length][1] < board.length&& canMove(move)){
+                        res.add(move);
+                        res.addAll(calculateMoveChain(move));
+                    }
+                }
+            }
         }
         return res;
     }
