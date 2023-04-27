@@ -134,7 +134,7 @@ public class ConsoleUI {
      */
     private static int[][] getMoveInput() {
         String input = in.nextLine();
-        if (!input.toLowerCase().matches("(?:[abcdefg][12345678][ -])+[abcdefg][12345678]"))
+        if (!input.toLowerCase().matches("(?:[abcdefgh][12345678][ -])+[abcdefgh][12345678]"))
             return null;
         int[][] res = new int[(input.length()+1)/3][2];
         Scanner sc = new Scanner(input);

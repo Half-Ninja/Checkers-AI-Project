@@ -176,12 +176,12 @@ public class Checkerboard {
             boolean enemyPassed = false;
             int j = fromY +yDirection;
             for (int i = fromX + xDirection; i != toX; i+= xDirection){
-                //check if the peice is an enemy piece
+                //check if the piece is an enemy piece
                 if (board[i][j] * piece < 0){
                     if (enemyPassed) return false;
                     enemyPassed = true;
                 }
-                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignorelist
+                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignoreList
                     return false;
                 j+= yDirection;
             }
@@ -232,12 +232,12 @@ public class Checkerboard {
             boolean enemyPassed = false;
             int j = fromY +yDirection;
             for (int i = fromX + xDirection; i != toX; i+= xDirection){
-                //check if the peice is an enemy piece
+                //check if the piece is an enemy piece
                 if (board[i][j] * piece < 0){
                     if (enemyPassed) return false;
                     enemyPassed = true;
                 }
-                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignorelist
+                if (board[i][j] * piece > 0 || ignoreList.contains(caseValue(i,j))) // checks if the current piece is friendly or in ignoreList
                     return false;
                 j+= yDirection;
             }
@@ -294,19 +294,19 @@ public class Checkerboard {
             // check if you can CAPTURE, return false if can't
             if (!canCaptureAssumingPiece(moves[i][0], moves[i][1], moves[i + 1][0], moves[i + 1][1], piece, ignoreList))
                 return false;
-            // add capture to the ignorelist
+            // add capture to the ignoreList
             switch (Math.abs(piece)){
                 case 1:
-                    // adds the case prior to the finish to ignorelist
+                    // adds the case prior to the finish to ignoreList
                     ignoreList.add(caseValue(moves[i + 1][0] - (moves[i][0] < moves[i + 1][0] ? 1 : -1),
                             moves[i + 1][1] - (moves[i][1] < moves[i + 1][1] ? 1 : -1)));
                 case 2:
-                    int xdir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
-                    int ydir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
-                    //folow the path to add any piece to the ignorelist
+                    int xDir = moves[i][0] < moves[i + 1][0] ? 1 : -1;
+                    int yDir = moves[i][1] < moves[i + 1][1] ? 1 : -1;
+                    //follow the path to add any piece to the ignoreList
                     for(int j = 1; j <= Math.abs(moves[i][0] - moves[i + 1][0]); j++){
-                        if( board[moves[i][0]+(j*xdir)][moves[i][1]+(j*ydir)] != 0) {
-                            ignoreList.add(caseValue(moves[i][0] + (j * xdir), moves[i][1] + (j * ydir)));
+                        if( board[moves[i][0]+(j*xDir)][moves[i][1]+(j*yDir)] != 0) {
+                            ignoreList.add(caseValue(moves[i][0] + (j * xDir), moves[i][1] + (j * yDir)));
                             break; // one case max can be encountered, no need to finish the loop
                         }
                     }
