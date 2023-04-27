@@ -27,7 +27,7 @@ public class AlphaBetaAI implements AI {
      * @param player The player to optimize the evaluation function for (true for
      *               white, false for black)
      * @return an array corresponding to the move, the first index corresponding to
-     *         the piece's current placement, and each subsequennt index
+     *         the piece's current placement, and each subsequent index
      *         corresponding to the following move (or moves in case of consecutive
      *         captures)
      */
@@ -50,10 +50,8 @@ public class AlphaBetaAI implements AI {
                 if (value > max) {
                     max = value;
                     bestMove = move;
-                    if (max >= beta)
-                        return bestMove;
-                    if (max > alpha)
-                        alpha = max;
+                    // no check if max > alpha as since this is the first level alpha is always <= max
+                    alpha = max;//technically useless and alpha could be replaced with max but left for clarity's sake
                 }
             }
             return bestMove;
@@ -66,10 +64,8 @@ public class AlphaBetaAI implements AI {
                 if (value < min) {
                     min = value;
                     bestMove = move;
-                    if (min <= alpha)
-                        return bestMove;
-                    if (min < beta)
-                        beta = min;
+                    // no check if min < beta as since this is the first level beta is always >= min
+                    beta = min; //technically useless and beta could be replaced with min but left for clarity's sake
                 }
             }
             return bestMove;

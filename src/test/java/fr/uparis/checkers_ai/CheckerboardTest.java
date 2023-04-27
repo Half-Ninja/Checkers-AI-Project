@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class CheckerboardTest {
 
     @Test

@@ -22,11 +22,11 @@ public class ConsoleUI {
     // scanner for inputs
     public static final Scanner in = new Scanner(System.in);
 
-    public static String titleCard = "   _____ _               _                 _ \n  / ____| |             | |               | |\n | |    | |__   ___  ___| | _____ _ __ ___| |\n | |    | '_ \\ / _ \\/ __| |/ / _ \\ '__/ __| |\n | |____| | | |  __/ (__|   <  __/ |  \\__ \\_|\n  \\_____|_| |_|\\___|\\___|_|\\_\\___|_|  |___(_)";
+    public static final String titleCard = "   _____ _               _                 _ \n  / ____| |             | |               | |\n | |    | |__   ___  ___| | _____ _ __ ___| |\n | |    | '_ \\ / _ \\/ __| |/ / _ \\ '__/ __| |\n | |____| | | |  __/ (__|   <  __/ |  \\__ \\_|\n  \\_____|_| |_|\\___|\\___|_|\\_\\___|_|  |___(_)";
 
     /**
      * sanitize an int input and records an input error as Integer.MIN_VALUE
-     * @return the inputed int, or Integer.MIN_VALUE if an invalid value was inputed
+     * @return the inputted int, or Integer.MIN_VALUE if an invalid value was inputted
      */
     private static int intInput(){
         try{
@@ -52,7 +52,7 @@ public class ConsoleUI {
                             play(new CheckersPvP()); //go straight into the loop
 
                     case 2 ->  // PvCPU game
-                            AImenu(); // VsAI submenu
+                            AIMenu(); // VsAI submenu
 
                     case 3 -> { //exit
                         System.out.println("exiting");
@@ -81,7 +81,7 @@ public class ConsoleUI {
     /**
      * submenu for when the user wants to play vs an AI
      */
-    private static void AImenu() {
+    private static void AIMenu() {
         System.out.println("select AI : \n 1 - Easy\n 2 - Medium\n 3 - Hard");
         boolean validInput;
         AI chosenAI = null;
@@ -130,7 +130,7 @@ public class ConsoleUI {
 
     /**
      * calculates the move from an input
-     * @return the move inputed by the user
+     * @return the move inputted by the user
      */
     private static int[][] getMoveInput() {
         String input = in.nextLine();

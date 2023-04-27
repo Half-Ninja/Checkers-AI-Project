@@ -13,7 +13,7 @@ public interface AI {
      * @param player The player to optimize the evaluation function for (true for
      *               white, false for black)
      * @return an array corresponding to the move, the first index corresponding to
-     *         the piece's current placement, and each subsequennt index
+     *         the piece's current placement, and each subsequent index
      *         corresponding to the following move (or moves in case of consecutive
      *         captures)
      */
