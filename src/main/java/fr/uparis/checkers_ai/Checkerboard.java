@@ -93,7 +93,7 @@ public class Checkerboard {
     public String toString() {
         StringBuilder res = new StringBuilder();
         for (int i = 0; i < 8; i++) {
-            res.append(i);
+            res.append(8-i);
             for (int place : board[i])
                 switch (place) {
                     case 0 -> res.append(' ');
@@ -105,7 +105,7 @@ public class Checkerboard {
                 }
             res.append('\n');
         }
-        return res.append(" 01234567").toString();
+        return res.append(" ABCDEFGH").toString();
     }
 
     /**
