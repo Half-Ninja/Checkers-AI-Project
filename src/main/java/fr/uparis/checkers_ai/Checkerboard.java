@@ -133,8 +133,9 @@ public class Checkerboard {
      */
     public boolean canMoveAssumingPiece(int fromX, int fromY, int toX, int toY, int piece,
             ArrayList<Integer> ignoreList) {
-        // if no piece or not a diagonal or the destination full return false
+        // if no piece or not a diagonal or the destination full or OoB return false
         if (piece == 0 || Math.abs(fromX - toX) != Math.abs(fromY - toY) ||
+                toX >= board.length || toY >= board.length || toX < 0 ||  toY < 0 ||
                 (board[toX][toY] != 0 && !ignoreList.contains(caseValue(toX, toY))))
             return false;
 

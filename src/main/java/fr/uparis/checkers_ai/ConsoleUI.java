@@ -44,21 +44,27 @@ public class ConsoleUI {
         while (keepPlaying) { // until the player chooses to exit
             System.out.println(titleCard); // cool logo
             System.out.println("select mode : \n 1 - Player Vs Player\n 2 - Player Vs Computer\n 3 - Exit");  //menu
-            switch(intInput()) {
-                case 1 ->  // PvP game
-                    play(new CheckersPvP()); //go straight into the loop
+            boolean validInput;
+            do{
+                validInput = true;
+                switch(intInput()) {
+                    case 1 ->  // PvP game
+                            play(new CheckersPvP()); //go straight into the loop
 
-                case 2 ->  // PvCPU game
-                    AImenu(); // VsAI submenu
+                    case 2 ->  // PvCPU game
+                            AImenu(); // VsAI submenu
 
-                case 3 -> { //exit
-                    System.out.println("exiting");
-                    keepPlaying = false;
+                    case 3 -> { //exit
+                        System.out.println("exiting");
+                        keepPlaying = false;
+                    }
+                    default -> {
+                        System.out.println("input not recognised");
+                        validInput = false;
+                    }
+
                 }
-                default ->
-                    System.out.println("input not recognised");
-
-            }
+            } while(!validInput);
             if (keepPlaying) { // if no choice to exit was made
                 System.out.print("exit program (Y/n):");
                 String input = in.next().toLowerCase().trim();
@@ -76,7 +82,29 @@ public class ConsoleUI {
      * submenu for when the user wants to play vs an AI
      */
     private static void AImenu() {
-        System.out.println("AI");
+        System.out.println("select AI : \n 1 - Easy\n 2 - Medium\n 3 - Hard");
+        boolean validInput;
+        AI chosenAI = null;
+        do {
+            validInput = true;
+            switch (intInput()){
+                default -> {validInput = false; System.out.println("invalid input");}
+                case 1 -> chosenAI = easyAI;
+                case 2 -> chosenAI = mediumAI;
+                case 3 -> chosenAI = hardAI;
+            }
+        } while (!validInput);
+
+        System.out.println("Go first? : \n 1 - Player first\n 2 - Computer first\n 3 - Random");
+        do {
+            validInput = true;
+            switch (intInput()){
+                default -> {validInput = false; System.out.println("invalid input");}
+                case 1 -> play(new CheckersAI(chosenAI, false));
+                case 2 -> play(new CheckersAI(chosenAI, true));
+                case 3 -> play(new CheckersAI(chosenAI, Math.random()>0.5));
+            }
+        } while (!validInput);
     }
 
     /**

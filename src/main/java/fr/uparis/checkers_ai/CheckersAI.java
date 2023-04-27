@@ -6,7 +6,7 @@ import fr.uparis.checkers_ai.ai.AI;
  * Checkers implementation player vs AI
  */
 public class CheckersAI extends Checkers{
-    private AI ai;
+    private final AI ai;
 
     /**
      * initialise a new checkers game against a given AI
@@ -23,7 +23,7 @@ public class CheckersAI extends Checkers{
      * @param asBlack true if the player is to play second
      */
     public CheckersAI(AI ai, boolean asBlack){
-        super();
+        this(ai);
         if(asBlack){ // if the player plays second
             getBoard().move(ai.chooseMove(getBoard(), true));
         }
