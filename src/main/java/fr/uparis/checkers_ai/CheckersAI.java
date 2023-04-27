@@ -27,7 +27,7 @@ public class CheckersAI extends Checkers{
         if(asBlack){ // if the player plays second
             getBoard().move(ai.chooseMove(getBoard(), true));
         }
-        switchPlayer();
+        if(asBlack) switchPlayer();
     }
 
     @Override
