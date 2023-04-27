@@ -88,7 +88,7 @@ public class AlphaBetaAI implements AI {
      * @return The value of the best move found
      */
     private int alphaBeta(Checkerboard board, int alpha, int beta, int depth, boolean player) {
-        if (depth == maxDepth || board.isFinished()) {
+        if (depth >= maxDepth || board.isFinished()) {
             return evaluate(board);
         }
 
@@ -149,12 +149,12 @@ public class AlphaBetaAI implements AI {
      */
     public int pieceEvaluation(int[][] board) {
         int score = 0;
-        for (int i = 0; i < board.length; i++) {
+        for (int[] ints : board) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j] == -2 || board[i][j] == 2) // if a queen
-                    score += board[i][j] * 5;
+                if (ints[j] == -2 || ints[j] == 2) // if a queen
+                    score += ints[j] * 5;
                 else
-                    score += board[i][j];
+                    score += ints[j];
             }
         }
         return score;

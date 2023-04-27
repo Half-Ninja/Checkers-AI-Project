@@ -29,8 +29,8 @@ public abstract class Checkers {
      */
     public boolean play(int[][] move){
         if(isFinished() ||      //      //      //      //      //      //      //      //      //on a finished game OR
-                (this.getBoard().pieceAt(move[0][0],move[0][1]) < 0 && !this.currentPlayer()) || //white piece selected on black's turn
-                (this.getBoard().pieceAt(move[0][0],move[0][1]) > 0 && this.currentPlayer())   //black piece selected on white's turn
+                (this.getBoard().pieceAt(move[0][0],move[0][1]) > 0 && !this.currentPlayer()) || //white piece selected on black's turn
+                (this.getBoard().pieceAt(move[0][0],move[0][1]) < 0 && this.currentPlayer())   //black piece selected on white's turn
         ) return false; //returns false
         return this.board.move(move);
     }
@@ -60,6 +60,10 @@ public abstract class Checkers {
         return board;
     }
 
+    /**
+     *
+     * @return true for white, false for black
+     */
     public boolean currentPlayer() {
         return current_player;
     }

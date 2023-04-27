@@ -93,7 +93,7 @@ public class Checkerboard {
     public String toString() {
         StringBuilder res = new StringBuilder();
         for (int i = 0; i < 8; i++) {
-            res.append(i);
+            res.append(8-i);
             for (int place : board[i])
                 switch (place) {
                     case 0 -> res.append(' ');
@@ -105,7 +105,7 @@ public class Checkerboard {
                 }
             res.append('\n');
         }
-        return res.append(" 01234567").toString();
+        return res.append(" ABCDEFGH").toString();
     }
 
     /**
@@ -133,8 +133,9 @@ public class Checkerboard {
      */
     public boolean canMoveAssumingPiece(int fromX, int fromY, int toX, int toY, int piece,
             ArrayList<Integer> ignoreList) {
-        // if no piece or not a diagonal or the destination full return false
+        // if no piece or not a diagonal or the destination full or OoB return false
         if (piece == 0 || Math.abs(fromX - toX) != Math.abs(fromY - toY) ||
+                toX >= board.length || toY >= board.length || toX < 0 ||  toY < 0 ||
                 (board[toX][toY] != 0 && !ignoreList.contains(caseValue(toX, toY))))
             return false;
 
