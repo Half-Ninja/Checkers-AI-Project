@@ -12,10 +12,6 @@ public class CheckersPvP extends Checkers {
      */
     @Override
     public boolean play(int[][] move){
-        if(isFinished() ||      //      //      //      //      //      //      //      //      //on a finished game OR
-                (this.getBoard().pieceAt(move[0][0],move[0][1]) < 0 && !this.currentPlayer()) || //white piece selected on black's turn
-                (this.getBoard().pieceAt(move[0][0],move[0][1]) > 0 && this.currentPlayer())   //black piece selected on white's turn
-            ) return false; //returns false
         if(super.play(move)){
             switchPlayer();
             return true;
