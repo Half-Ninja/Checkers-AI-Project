@@ -5,23 +5,21 @@ package fr.uparis.checkers_ai;
  */
 public abstract class Checkers {
     /**
-     * current player (false for white, true for black)
+     * current player (true for white, false for black)
      */
     private boolean current_player;
 
     /**
      * Checkerboard class
      */
-    private Checkerboard board;
+    private final Checkerboard board;
 
+    /**
+     * initialise a new checkers game
+     */
     public Checkers(){
         this.board = new Checkerboard();
-        this.current_player = false;
-    }
-
-    public Checkers(boolean blackFirst){
-        this.board = new Checkerboard();
-        this.current_player = blackFirst;
+        this.current_player = true;
     }
 
     /**
@@ -30,6 +28,10 @@ public abstract class Checkers {
      * @return true if the move is correctly executed
      */
     public boolean play(int[][] move){
+        if(isFinished() ||      //      //      //      //      //      //      //      //      //on a finished game OR
+                (this.getBoard().pieceAt(move[0][0],move[0][1]) > 0 && !this.currentPlayer()) || //white piece selected on black's turn
+                (this.getBoard().pieceAt(move[0][0],move[0][1]) < 0 && this.currentPlayer())   //black piece selected on white's turn
+        ) return false; //returns false
         return this.board.move(move);
     }
 
@@ -58,6 +60,10 @@ public abstract class Checkers {
         return board;
     }
 
+    /**
+     *
+     * @return true for white, false for black
+     */
     public boolean currentPlayer() {
         return current_player;
     }
