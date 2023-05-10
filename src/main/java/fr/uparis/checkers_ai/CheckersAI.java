@@ -26,13 +26,13 @@ public class CheckersAI extends Checkers{
         this(ai);
         if(asBlack){ // if the player plays second
             getBoard().move(ai.chooseMove(getBoard(), true));
+            switchPlayer();
         }
-        if(asBlack) switchPlayer();
     }
 
     @Override
     public boolean play(int[][] move) {
         if (!super.play(move)) return false;
-        return getBoard().move(ai.chooseMove(getBoard(), true));
+        return getBoard().move(ai.chooseMove(getBoard(), !currentPlayer()));
     }
 }
